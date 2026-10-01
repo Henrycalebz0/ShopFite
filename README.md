@@ -2,6 +2,8 @@
 
 ShopFite is a responsive home goods storefront built with Next.js. It includes product search and categories, database-backed guest baskets, checkout with delivery details, Google sign-in through Supabase Auth, transactional inventory/order persistence, and Mailgun order confirmation email.
 
+**Live site:** [shopfite-production.up.railway.app](https://shopfite-production.up.railway.app)
+
 ## Stack and order flow
 
 1. The storefront reads active products from `/api/products`. It stores the guest cart and item quantities in Supabase, keyed by a random cart ID; local storage keeps that ID and an offline fallback.
