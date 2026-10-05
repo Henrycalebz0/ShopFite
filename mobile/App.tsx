@@ -1,6 +1,6 @@
 import "react-native-url-polyfill/auto";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, AppState, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, AppState, FlatList, Image, KeyboardAvoidingView, Platform, Pressable, SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TextInput, View } from "react-native";
 import * as Crypto from "expo-crypto";
 import * as Linking from "expo-linking";
 import * as SecureStore from "expo-secure-store";
@@ -118,7 +118,7 @@ export default function App() {
   const change = (id: string, delta: number) => void saveCart(cart.map((line) => line.id === id ? { ...line, quantity: line.quantity + delta } : line).filter((line) => line.quantity > 0));
 
   async function signIn() {
-    if (!supabase) { setMessage("Add the Supabase URL and anon key to mobile/.env before signing in."); return; }
+    if (!supabase) { setMessage("This app build is missing its Supabase settings. Add EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_ANON_KEY to mobile/.env, then restart Expo or make a new Android build."); return; }
     setBusy(true); setMessage("");
     try {
       const redirectTo = Linking.createURL("auth/callback", { scheme: "shopfite" });
@@ -158,9 +158,10 @@ export default function App() {
     <View style={styles.field} key={key}><Text style={styles.label}>{label}</Text><TextInput accessibilityLabel={label} autoCapitalize={key === "email" ? "none" : "words"} keyboardType={options.keyboardType || "default"} multiline={options.multiline} style={[styles.input, options.multiline && styles.multiline]} value={delivery[key]} onChangeText={(value) => setDelivery((current) => ({ ...current, [key]: value }))} /></View>
   );
 
-  if (!ready) return <SafeAreaView style={styles.center}><ActivityIndicator size="large" color="#294b38"/><Text style={styles.muted}>Loading your shop…</Text></SafeAreaView>;
+  if (!ready) return <SafeAreaView style={[styles.center, Platform.OS === "android" && styles.androidInset]}><StatusBar barStyle="dark-content" backgroundColor="#faf9f5"/><ActivityIndicator size="large" color="#294b38"/><Text style={styles.muted}>Loading your shop…</Text></SafeAreaView>;
 
-  return <SafeAreaView style={styles.safe}>
+  return <SafeAreaView style={[styles.safe, Platform.OS === "android" && styles.androidInset]}>
+    <StatusBar barStyle="dark-content" backgroundColor="#faf9f5"/>
     <View style={styles.header}><View style={styles.brand}><View style={styles.brandMark}><Text style={styles.brandMarkLetter}>S</Text></View><Text style={styles.brandName}>shopfite<Text style={styles.dot}>.</Text></Text></View><Pressable style={styles.bagButton} onPress={() => setView(view === "bag" ? "shop" : "bag")}><Text style={styles.bagText}>Bag ({count})</Text></Pressable></View>
     {orderMessage ? <Pressable style={styles.orderBanner} onPress={() => setOrderMessage("")}><Text style={styles.orderText}>{orderMessage}  ×</Text></Pressable> : null}
     {message ? <Pressable style={styles.messageBanner} onPress={() => setMessage("")}><Text style={styles.messageText}>{message}  ×</Text></Pressable> : null}
@@ -183,7 +184,7 @@ export default function App() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1, backgroundColor: "#faf9f5" }, flex: { flex: 1 }, center: { flex: 1, backgroundColor: "#faf9f5", alignItems: "center", justifyContent: "center", gap: 12 },
+  safe: { flex: 1, backgroundColor: "#faf9f5" }, androidInset: { paddingTop: StatusBar.currentHeight || 0 }, flex: { flex: 1 }, center: { flex: 1, backgroundColor: "#faf9f5", alignItems: "center", justifyContent: "center", gap: 12 },
   header: { height: 62, paddingHorizontal: 20, borderBottomWidth: 1, borderBottomColor: "#e9e8e1", flexDirection: "row", alignItems: "center", justifyContent: "space-between" }, brand: { flexDirection: "row", gap: 8, alignItems: "center" }, brandMark: { width: 30, height: 30, borderRadius: 6, backgroundColor: "#294b38", alignItems: "center", justifyContent: "center" }, brandMarkLetter: { color: "#c8e18b", fontSize: 19, fontWeight: "900" }, brandName: { color: "#17231c", fontSize: 23, fontWeight: "800", letterSpacing: -1.1 }, dot: { color: "#7d9f4c" }, bagButton: { borderRadius: 99, backgroundColor: "#294b38", paddingHorizontal: 15, paddingVertical: 9 }, bagText: { color: "white", fontWeight: "700" },
   accountRow: { paddingHorizontal: 20, paddingVertical: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12, borderBottomWidth: 1, borderBottomColor: "#e9e8e1" }, account: { color: "#71796f", flex: 1, fontSize: 12 }, accountAction: { color: "#294b38", fontSize: 13, fontWeight: "700" },
   intro: { paddingHorizontal: 20, paddingTop: 24, paddingBottom: 16 }, eyebrow: { color: "#627248", fontSize: 10, fontWeight: "800", letterSpacing: 1.4 }, title: { color: "#17231c", fontSize: 29, fontWeight: "700", letterSpacing: -0.8, marginTop: 8, marginBottom: 7 }, muted: { color: "#71796f", fontSize: 14, lineHeight: 21 }, categories: { paddingHorizontal: 20, gap: 8, paddingBottom: 14 }, chip: { borderRadius: 99, borderWidth: 1, borderColor: "#e2e2da", paddingVertical: 8, paddingHorizontal: 14 }, chipActive: { backgroundColor: "#294b38", borderColor: "#294b38" }, chipText: { color: "#535a52", fontSize: 12 }, chipTextActive: { color: "white" },

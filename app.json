@@ -1,0 +1,12 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "0e6a7193-cfa7-420c-95f1-a2989f2dde98"
+      }
+    },
+    "android": {
+      "package": "com.henryxv.shopfite"
+    }
+  }
+}
