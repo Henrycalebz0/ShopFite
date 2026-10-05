@@ -6,8 +6,20 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "assetBundlePatterns": ["**/*"],
-    "ios": { "supportsTablet": true, "bundleIdentifier": "com.shopfite.mobile" },
-    "android": { "package": "com.shopfite.mobile" }
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.shopfite.mobile"
+    },
+    "android": {
+      "package": "com.shopfite.mobile"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "a34f00df-e427-4095-af8b-b25780781ec6"
+      }
+    }
   }
 }
