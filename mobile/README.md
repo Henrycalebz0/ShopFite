@@ -6,7 +6,7 @@ Expo / React Native app for iOS and Android. It uses the website's existing API 
 
 1. Apply `../supabase/migrations/202610050001_account_linked_carts.sql` to the existing Supabase project. The fresh-project `../supabase/schema.sql` already includes this change.
 2. Copy `.env.example` to `.env` and set the Supabase project URL and **anon/publishable key**. Never use the service-role key in the mobile app. The variable names must be exactly `EXPO_PUBLIC_SUPABASE_URL` and `EXPO_PUBLIC_SUPABASE_ANON_KEY`; use the project root URL (`https://<project-ref>.supabase.co`), not `/rest/v1`.
-3. In Supabase **Authentication → URL Configuration → Redirect URLs**, add `shopfite://auth/callback`. The Google OAuth provider and Google Cloud authorized callback remain configured as described in the root README; Google's authorized redirect is the Supabase Auth callback.
+3. In Supabase **Authentication → URL Configuration → Redirect URLs**, add the exact value `shopfite://auth/callback`, then save. If it is missing, Supabase falls back to its Site URL (often `http://localhost:3000`), so native Google sign-in cannot return to the app. The Google OAuth provider and Google Cloud authorized callback remain configured as described in the root README; Google's authorized redirect is the Supabase Auth callback.
 
 ## Run on a physical phone
 
