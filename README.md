@@ -4,6 +4,8 @@ ShopFite is a responsive home goods storefront built with Next.js. It includes p
 
 **Live site:** [shopfite-production.up.railway.app](https://shopfite-production.up.railway.app)
 
+The Expo mobile app lives in [`mobile/`](mobile/README.md) and uses this site's `/api/products`, `/api/cart`, and `/api/checkout` endpoints.
+
 ## Stack and order flow
 
 1. The storefront reads active products from `/api/products`. It stores the guest cart and item quantities in Supabase, keyed by a random cart ID; local storage keeps that ID and an offline fallback.
@@ -23,6 +25,12 @@ All displayed prices and order totals use NGN. Prices are stored as integer kobo
 4. Start with `npm run dev` and open `http://localhost:3000`.
 
 Without Supabase credentials, the product page uses a demo catalog; order submission and Google sign-in need a configured Supabase project.
+
+## Mobile app
+
+See [`mobile/README.md`](mobile/README.md) to install and run the Expo app on a physical iPhone or Android phone. It uses the same Google account and deployed ShopFite API.
+
+Before cross-device account carts work, apply `supabase/migrations/202610050001_account_linked_carts.sql` to the existing Supabase project. For a fresh database, `supabase/schema.sql` includes the same account-cart setup. Add `shopfite://auth/callback` to Supabase **Authentication → URL Configuration → Redirect URLs** so Google sign-in can return to the phone.
 
 ## Supabase setup
 

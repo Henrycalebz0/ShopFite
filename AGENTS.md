@@ -17,6 +17,7 @@ This file is the working map and change policy for agents modifying ShopFite. Fo
 | Path | Responsibility |
 | --- | --- |
 | `app/page.tsx` | Client storefront, category/search controls, Google sign-in entry, basket UI, local fallback, and product rendering. |
+| `mobile/` | Expo / React Native iOS and Android client. It calls the same products, cart, and checkout API routes as the web app and stores Supabase sessions in device secure storage. |
 | `app/checkout/page.tsx` | Guest/Google checkout form, delivery details, basket summary, order submission, and success state. |
 | `app/globals.css` | Responsive storefront and checkout styling. |
 | `app/layout.tsx` | Root document and metadata. |
@@ -28,6 +29,7 @@ This file is the working map and change policy for agents modifying ShopFite. Fo
 | `lib/supabase/browser.ts` | Browser Supabase client. It uses only the public anon key. |
 | `lib/supabase/server.ts` | Server Supabase client. It uses the private service-role key; never import this module from client code. |
 | `supabase/schema.sql` | Fresh-project schema, row-level security, grants, transactional cart/order functions, and starter products. |
+| `supabase/migrations/202610050001_account_linked_carts.sql` | Adds one persistent shared-cart identity per Supabase account and merges an existing guest cart on first sign-in. Apply to existing projects before cross-device carts are used. |
 | `.env.example` | Names and non-secret examples for required environment settings. |
 | `README.md` | Human setup guide for Supabase, Google Cloud OAuth, Mailgun, and local development. |
 
@@ -38,6 +40,7 @@ This file is the working map and change policy for agents modifying ShopFite. Fo
 1. The home page requests `/api/products` and uses the demo catalog only if that request fails.
 2. A random UUID identifies each guest basket. The app stores the ID and an offline fallback in browser local storage.
 3. Basket reads and writes go through `/api/cart`; server-side Supabase credentials access `shopping_carts` and `shopping_cart_items` through `save_shopfite_cart`.
+4. Once authenticated, both clients send the Supabase session to `/api/cart`. The API verifies it and attaches requests to the account's one shared cart. The web and mobile clients refresh while active so edits on the other device appear promptly. Existing guest contents are merged when first claimed. Unauthenticated requests cannot read or change a cart linked to an account.
 4. Product prices shown in the browser are informational. Checkout never trusts a browser-supplied price.
 
 ### Checkout and order persistence
@@ -62,10 +65,11 @@ This file is the working map and change policy for agents modifying ShopFite. Fo
 2. Keep secrets, credentials, customer data, and API responses with sensitive values out of source files, logs, screenshots, and final messages. `.env.local` is ignored by Git; do not commit it or print its values.
 3. `NEXT_PUBLIC_` variables are public. Only the Supabase URL and anon key belong there. The service-role key and Mailgun API key must remain server-side.
 4. Keep privileged database access on server routes. Never expose order/cart tables or service-role credentials to browser code. Preserve row-level security and the restricted grants in `supabase/schema.sql`.
+   The native app may contain only the public Supabase anon/publishable key. Its access token is sent as a bearer token to the same server routes; the server validates the token before resolving an account cart.
 5. Treat browser data as untrusted: validate request bodies, recalculate totals from database prices, constrain quantities, and use parameterized Supabase calls/SQL.
 6. Database changes must keep the bootstrap schema accurate. For an already-deployed database, prefer a new ordered migration under `supabase/migrations/` and update `supabase/schema.sql` for fresh installs; do not silently remove or rewrite customer/order data.
 7. Keep Mailgun failures observable without logging API keys, full message bodies, or unnecessary personal information. Sandbox recipients must be authorized in Mailgun before delivery.
-8. Update `README.md` when setup variables, providers, routes, persistence behavior, order flow, or payment behavior changes.
+8. Update `README.md` when setup variables, providers, routes, persistence behavior, order flow, or payment behavior changes. Keep `mobile/README.md` current with physical-device setup and native redirect requirements.
 9. Keep UI responsive and accessible: labels for inputs, useful button names, visible errors, keyboard-operable controls, and clear loading/success states.
 10. Do not add dependencies without a concrete need. Keep `package.json` and `package-lock.json` synchronized when dependency changes are required.
 
