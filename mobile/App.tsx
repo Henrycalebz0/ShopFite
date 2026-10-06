@@ -38,8 +38,8 @@ export default function App() {
   const [category, setCategory] = useState("All");
   const [orderMessage, setOrderMessage] = useState("");
 
-  const request = useCallback(async (path: string, init: RequestInit = {}) => {
-    const token = session?.access_token;
+  const request = useCallback(async (path: string, init: RequestInit = {}, accessToken = session?.access_token) => {
+    const token = accessToken;
     const headers = new Headers(init.headers);
     if (init.body) headers.set("Content-Type", "application/json");
     if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -49,9 +49,9 @@ export default function App() {
     return data;
   }, [session]);
 
-  const refreshCart = useCallback(async (id = cartId) => {
+  const refreshCart = useCallback(async (id = cartId, accessToken?: string) => {
     if (!id) return;
-    const data = await request(`/api/cart?cartId=${encodeURIComponent(id)}`);
+    const data = await request(`/api/cart?cartId=${encodeURIComponent(id)}`, {}, accessToken);
     const nextId = data.cartId || id;
     if (nextId !== id) { setCartId(nextId); await SecureStore.setItemAsync("shopfite-cart-id", nextId); }
     if (Array.isArray(data.items)) setCart((current) => JSON.stringify(current) === JSON.stringify(data.items) ? current : data.items);
@@ -78,7 +78,8 @@ export default function App() {
         if (alive) setCartId(id);
         const catalog = await fetch(`${apiBase}/api/products`).then((r) => r.ok ? r.json() : Promise.reject(new Error("Products could not be loaded.")));
         if (alive && Array.isArray(catalog)) setProducts(catalog);
-        const result = await request(`/api/cart?cartId=${encodeURIComponent(id)}`);
+        // Use the session read above rather than the initial render's stale state.
+        const result = await request(`/api/cart?cartId=${encodeURIComponent(id)}`, {}, data.session?.access_token);
         if (!alive) return;
         if (result.cartId && result.cartId !== id) { id = result.cartId; await SecureStore.setItemAsync("shopfite-cart-id", id); setCartId(id); }
         if (Array.isArray(result.items)) setCart(result.items);
@@ -134,7 +135,9 @@ export default function App() {
       const { data: authData, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
       if (exchangeError) throw exchangeError;
       setSession(authData.session);
-      await refreshCart(cartId);
+      // `setSession` is asynchronous. Pass the just-created token so this first
+      // request claims the shared account cart instead of reading a guest cart.
+      await refreshCart(cartId, authData.session?.access_token);
     } catch (error) { setMessage(error instanceof Error ? error.message : "Google sign-in failed."); }
     finally { setBusy(false); }
   }

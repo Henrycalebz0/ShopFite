@@ -43,6 +43,8 @@ In **Authentication → URL Configuration**, set the Site URL to your deployed s
 - `http://localhost:3000/auth/callback`
 - `https://YOUR-DOMAIN/auth/callback`
 
+For the current Railway site, also add `https://shopfite-production.up.railway.app/auth/callback`. The callback route uses Railway's forwarded public host when it completes sign-in, so it will not redirect a deployed customer to Railway's internal `localhost` listener.
+
 ## Google sign-in setup
 
 1. In Google Cloud Console, select or create a project and configure the OAuth consent screen (app name, support email, audience, and scopes `openid`, `email`, `profile`). Add test users while the consent screen is in testing.

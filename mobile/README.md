@@ -19,7 +19,7 @@ npx expo run:android
 # On macOS, use: npx expo run:ios
 ```
 
-The first `run` creates and installs a development build on the connected phone. Start the Metro server with `npm start` after installation. Google OAuth uses the app's `shopfite://auth/callback` scheme, so test in the installed development build rather than Expo Go.
+The first `run` creates and installs a development build on the connected phone. Start the Metro server with `npm start` after installation. Google OAuth uses the app's `shopfite://auth/callback` scheme, so test in the installed development build rather than Expo Go. The ShopFite app icon is configured from `assets/icon.png`; rebuild and reinstall the native app to see an icon change.
 
 After creating or changing `.env`, stop Expo and start it with `npx expo start --clear`. For an APK/AAB made with EAS, add the same two **public** variables in the selected EAS build environment before building again; an already-installed release build cannot read a `.env` file added later. Do not place the Supabase service-role key or any Mailgun key in EAS public variables.
 
